@@ -13,8 +13,7 @@ import utility
 from datetime import datetime, timedelta
 import pysteps
 # Define the directories
-root_path = "D:\\Geosciences_Project\\Nowcasting_OF"
-
+root_path = os.getcwd()
 # Define data directory
 data_path = os.path.join(root_path,"Data")
 metadata_X = utility.get_matadata(os.path.join(data_path,"radarmappatipo.tif"),type='X')
@@ -43,13 +42,13 @@ image_R, metadata_X = pysteps.utils.transformation.dB_transform(R_X_R, metadata_
 from pprint import pprint
 pprint(metadata_X)
 
+# The Lucas-Kanade optical flow method implemented in pysteps
 oflow_method = pysteps.motion.get_method("LK")
 V1 = oflow_method(image_R[-3:, :, :])
 
+# Plot precipitation field
 import matplotlib.pyplot as plt
 from pysteps.visualization import plot_precip_field, quiver
-
-# Plot precipitation field
 fig, ax = plt.subplots(figsize=(10, 8))
 # Plot the precipitation field
 plot_precip_field(
@@ -71,7 +70,6 @@ quiver(
 utility.plot_modification(ax,metadata_X)
 
 # ### Analysis with civil protection radar data 
-
 # metadata_C = utility.get_matadata(os.path.join(data_path,"civilpromap.tiff"),type='C')
 # # Input parameter for loading C band radar data
 # data_source_C = "Civil_Pro_C"
