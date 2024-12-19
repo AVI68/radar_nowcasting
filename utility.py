@@ -2,43 +2,26 @@
 """
 Created on Wed Jul 17 15:26:32 2024
 
-run the code "avi_ppt_dwnsc" environment
+run the code "radar_nowcasting_env" environment
 
 @author: Avijit Majhi
 """
 import os
-import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta, timezone
 import matplotlib.pyplot as plt
-from PIL import Image, ImageDraw
+from PIL import Image
 import rasterio
-import rasterio
-from pysteps.utils import conversion, transformation
-from osgeo import gdal, osr, gdalconst
-from pysteps import io, motion, rcparams
+from osgeo import gdal, gdalconst, osr
 from pysteps.utils import conversion, transformation
 from pysteps.visualization import plot_precip_field, quiver
-from typing import List, Dict, Any, Tuple
-from rasterio.windows import Window
-from rasterio.warp import calculate_default_transform, reproject, Resampling
-from rasterio.transform import from_origin
-from shapely.geometry import Point, box
-from scipy.interpolate import interp1d
-from scipy.signal import convolve2d
-from pysteps.utils.spectral import rapsd
-from pprint import pprint
-from tqdm import tqdm
-import pickle
-import cv2
-from sklearn.cluster import DBSCAN, KMeans
+import pyproj
+import contextily as cx
 from scipy.ndimage import median_filter
-import pywt
-from contextily import add_basemap
-import matplotlib.ticker as ticker
-from matplotlib.ticker import MaxNLocator,FuncFormatter
-import contextily
 from scipy.signal import correlate2d
+import cv2
+import pywt
+
 
 # Provided utility functions
 def list_files_in_folder(folder_path):
