@@ -231,7 +231,7 @@ def extract_filename_from_datetime(t, frmt):
     return filename
       
         
-def import_files_by_date(date, root_path, data_source, f_ext, metadata, timestep=5, num_prev_files=9):
+def import_files_by_date(date, root_path, data_source, f_ext, metadata, num_prev_files, timestep=5):
     """
     Import radar files from a fixed event-specific subdirectory and update metadata with timestamps.
 
@@ -255,7 +255,7 @@ def import_files_by_date(date, root_path, data_source, f_ext, metadata, timestep
     # Determine the event-specific subdirectory from the input date
     event_subdir = date.strftime("%Y%m%d_%H%M")
 
-    for i in range(num_prev_files):
+    for i in range(num_prev_files,-1,-1):
         # Compute the timestamp for each file
         file_time = date - timedelta(minutes=i * timestep)
         timestamps.append(file_time)
