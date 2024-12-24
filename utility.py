@@ -40,6 +40,36 @@ def list_files_in_folder(folder_path):
         for f in os.listdir(folder_path)  # Iterate over all entries in the folder
         if os.path.isfile(os.path.join(folder_path, f))  # Include only files (not directories)
     ]
+
+def count_files(root_path, file_format=None):
+    """
+    Counts the number of files with a specific format in a directory 
+    or the number of folders if no format is provided.
+
+    Parameters:
+        root_path (str): Path to the root directory.
+        file_format (str, optional): File extension to filter (e.g., 'png', 'tiff').
+                                     If None, count the number of folders.
+
+    Returns:
+        int: Count of files matching the format or the number of folders.
+    """
+    if not os.path.isdir(root_path):
+        raise ValueError(f"The path {root_path} is not a valid directory.")
+
+    if file_format:  # Count files with the specified format
+        file_count = sum(
+            1 for f in os.listdir(root_path)
+            if f.endswith(f".{file_format}") and os.path.isfile(os.path.join(root_path, f))
+        )
+        return file_count
+    else:  # Count the number of folders
+        folder_count = sum(
+            1 for f in os.listdir(root_path)
+            if os.path.isdir(os.path.join(root_path, f))
+        )
+        return folder_count
+
 def get_file_format(file_path):
     """
     Get the file format (extension) of the given file path.
@@ -434,36 +464,7 @@ def plot_modification(ax, metadata, crs_geo="EPSG:4326", tick_step=5):
     
 
 def noise_remove(image, type='Watershed'):
-    if type == 'DBSCAN':
-        # DBSCAN specific parameters
-        eps = 3
-        min_samples = 10
-        
-        # Convert image to a list of points [x, y, intensity]
-        points = []
-        for x in range(image.shape[0]):
-            for y in range(image.shape[1]):
-                intensity = image[x, y]
-                if intensity > 0:  # Only consider non-zero intensity pixels
-                    points.append([x, y, intensity])
-    
-        # Convert to a numpy array for processing
-        points = np.array(points)
-    
-        # Apply DBSCAN clustering
-        dbscan = DBSCAN(eps=eps, min_samples=min_samples, metric='euclidean').fit(points)
-    
-        # Labels for each point in the dataset (-1 represents noise)
-        labels = dbscan.labels_
-    
-        # Remove noise points from the original image
-        filtered_image = np.zeros_like(image)
-        for (point, label) in zip(points, labels):
-            x, y, intensity = point
-            if label != -1:  # Keep only non-noise points
-                filtered_image[int(x), int(y)] = intensity
-
-    elif type == 'Median':
+    if type == 'Median':
         # Median filter specific parameters
         kernel_size = 3
         
@@ -478,50 +479,12 @@ def noise_remove(image, type='Watershed'):
         # Apply Gaussian filtering to smooth the image
         filtered_image = cv2.GaussianBlur(image, kernel_size, sigmaX)
 
-    elif type == 'Bilateral':
-        # Bilateral filter specific parameters
-        d = 9
-        sigmaColor = 75
-        sigmaSpace = 75
-        
-        # Apply bilateral filtering
-        filtered_image = cv2.bilateralFilter(image, d, sigmaColor, sigmaSpace)
-
-    elif type == 'NonLocalMeans':
-        # Non-local means denoising specific parameters
-        h = 10
-        templateWindowSize = 7
-        searchWindowSize = 21
-        
-        # Apply non-local means denoising
-        filtered_image = cv2.fastNlMeansDenoising(image, h=h, templateWindowSize=templateWindowSize, searchWindowSize=searchWindowSize)
-
-    elif type == 'Wavelet':
-        # Wavelet denoising specific parameters
-        value = 10
-        
-        # Wavelet-based denoising using PyWavelets library
-        coeffs = pywt.wavedec2(image, 'db1', level=2)
-        coeffs[1:] = [(pywt.threshold(c, value=value, mode='soft') for c in coeff) for coeff in coeffs[1:]]
-        filtered_image = pywt.waverec2(coeffs, 'db1')
-
-    elif type == 'Morphological':
-        # Morphological operations specific parameters
-        kernel_size = (3, 3)
-        iterations = 2
-        
-        # Apply morphological operations like opening to remove small noise spots
-        kernel = np.ones(kernel_size, np.uint8)
-        filtered_image = cv2.morphologyEx(image, cv2.MORPH_OPEN, kernel, iterations=iterations)
-        filtered_image = cv2.morphologyEx(filtered_image, cv2.MORPH_CLOSE, kernel, iterations=iterations)
-
     elif type == 'Watershed':
         # Watershed segmentation for cluster detection
         # Convert image to binary
         _, binary_image = cv2.threshold(image, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
         # Remove small noise using morphological operations
-        
         
         kernel = np.ones((3, 3), np.uint8)
         
@@ -578,57 +541,73 @@ def noise_remove(image, type='Watershed'):
     
         # Replace the modified center region back into the original image
         filtered_image[500:520, 500:520] = center_region
-        
-        
-    
-    elif type == 'KMeans':
-        # K-means clustering specific parameters
-        k = 2
-        
-        # K-means clustering for cluster detection and noise removal
-        # Reshape image into a 2D array of pixels and 1D intensity
-        pixel_values = image.reshape((-1, 1))
-        pixel_values = np.float32(pixel_values)
-
-        #  Define criteria and apply k-means
-        criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 100, 0.2)
-        _, labels, centers = cv2.kmeans(pixel_values, k, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS)
-
-        # Convert labels to the segmented image
-        segmented_image = labels.reshape(image.shape)
-
-        # Choose the largest cluster as the foreground (e.g., clusters with most pixels)
-        unique, counts = np.unique(segmented_image, return_counts=True)
-        largest_cluster_label = unique[np.argmax(counts)]
-
-        # Create an image with only the largest cluster and remove others
-        filtered_image = np.zeros_like(image)
-        filtered_image[segmented_image == largest_cluster_label] = image[segmented_image == largest_cluster_label]
-
-    elif type == 'ConnectedComponents':
-        # Connected Components specific parameters
-        min_cluster_size = 50
-        
-        #  Detect clusters using connected components or contours
-        # Apply a binary threshold to get binary image
-        _, binary_image = cv2.threshold(image, 1, 255, cv2.THRESH_BINARY)
-        
-        #  Find connected components (or contours) in the binary image
-        num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(binary_image, connectivity=8)
-        
-        # Create an empty image to store filtered clusters
-        filtered_image = np.zeros_like(image)
-        
-        # Filter clusters based on size
-        for label in range(1, num_labels):  # Skip label 0 as it's the background
-            # Get size of the cluster
-            cluster_size = stats[label, cv2.CC_STAT_AREA]
-            
-            if cluster_size >= min_cluster_size:  # Only keep clusters larger than min_cluster_size
-                # Copy the cluster's original intensity values to the filtered image
-                filtered_image[labels == label] = image[labels == label]
 
     else:
         raise ValueError(f"Unknown noise removal type: {type}")
     
     return filtered_image
+def create_gif(R, metadata, units="dBZ", title="Precipitation Field GIF", loop=True):
+    """
+    Create and display a GIF from radar data along the time axis.
+
+    Parameters:
+        R (numpy.ndarray): 3D array of radar reflectivity data (time, x, y).
+        metadata (dict): Metadata containing geospatial information.
+        units (str): Units for the plot (e.g., 'dBZ').
+        title (str): Title for the GIF frames.
+        loop (bool): If True, the GIF will loop indefinitely.
+
+    Returns:
+        None: Displays the GIF in the Jupyter Notebook.
+    """
+    import os
+    import matplotlib.pyplot as plt
+    from pysteps.visualization import plot_precip_field
+    import imageio
+    from IPython.display import Image, display
+
+    temp_dir = "temp_frames"
+    os.makedirs(temp_dir, exist_ok=True)
+    frame_files = []
+
+    try:
+        # Generate frames for each time step
+        for t in range(R.shape[0]):
+            fig, ax = plt.subplots(figsize=(10, 8))
+
+            # Plot precipitation field
+            plot_precip_field(
+                R[t, :, :], 
+                ptype="intensity", 
+                geodata=metadata, 
+                units=units, 
+                title=f"{title} - Time Step {t+1}", 
+                ax=ax, 
+                colorscale="pysteps"
+            )
+
+            # Add basemap and customizations
+            plot_modification(ax, metadata)
+
+            # Save frame
+            frame_file = os.path.join(temp_dir, f"frame_{t}.png")
+            plt.savefig(frame_file)
+            frame_files.append(frame_file)
+            plt.close(fig)
+
+        # Save GIF in the current working directory
+        gif_path = os.path.join(os.getcwd(), "precipitation_field.gif")
+        loop_count = 0 if loop else 1  # 0 means infinite loop
+        with imageio.get_writer(gif_path, mode="I", duration=2, loop=loop_count) as writer:
+            for frame_file in frame_files:
+                image = imageio.imread(frame_file)
+                writer.append_data(image)
+
+        # Display GIF in notebook
+        display(Image(gif_path))
+
+    finally:
+        # Cleanup temporary files
+        for frame_file in frame_files:
+            os.remove(frame_file)
+        os.rmdir(temp_dir)
