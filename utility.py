@@ -21,7 +21,6 @@ from scipy.ndimage import median_filter
 from scipy.signal import correlate2d
 import cv2
 
-
 # Provided utility functions
 def list_files_in_folder(folder_path):
     """
@@ -259,8 +258,7 @@ def extract_filename_from_datetime(t, frmt):
     
     return filename
       
-        
-def import_files_by_date(date, root_path, data_source, f_ext, metadata, num_prev_files, timestep=5):
+def import_files_by_date(date, root_path, data_source, event_subdir, f_ext, metadata, num_prev_files=0, num_next_files=0, timestep=5):
     """
     Import radar files from a fixed event-specific subdirectory and update metadata with timestamps.
 
@@ -268,10 +266,12 @@ def import_files_by_date(date, root_path, data_source, f_ext, metadata, num_prev
         date (datetime): The target datetime for the radar files.
         root_path (str): The root directory containing radar files.
         data_source (str): Subdirectory under the root path (e.g., "UNICA_SG" or "Civil_Pro_C").
+        event_subdir (str): Subdirectory under data_source (format "%Y%m%d_%H%M"))
         f_ext (str): File extension (e.g., "png" or "tiff").
         metadata (dict): The metadata dictionary to be updated.
         timestep (int): Time interval (in minutes) between consecutive files.
         num_prev_files (int): Number of files to retrieve before the target date.
+        num_next_files (int): Number of files to retrieve after the target date.
 
     Returns:
         tuple:
@@ -281,12 +281,27 @@ def import_files_by_date(date, root_path, data_source, f_ext, metadata, num_prev
     radar_data = []
     timestamps = []
 
-    # Determine the event-specific subdirectory from the input date
-    event_subdir = date.strftime("%Y%m%d_%H%M")
-
-    for i in range(num_prev_files,-1,-1):
-        # Compute the timestamp for each file
+    # Load previous files (before the target date)
+    for i in range(num_prev_files, -1, -1):
         file_time = date - timedelta(minutes=i * timestep)
+        timestamps.append(file_time)
+
+        # Generate the filename using extract_filename_from_datetime
+        filename = extract_filename_from_datetime(file_time, f_ext)
+
+        # Construct the file path
+        file_path = os.path.join(root_path, data_source, event_subdir, filename)
+
+        # Check if the file exists and read it
+        if os.path.exists(file_path):
+            radar_image = read_image(file_path)
+            radar_data.append(radar_image)
+        else:
+            print(f"Warning: No file found at {file_path}")
+
+    # Load next files (after the target date)
+    for i in range(1, num_next_files + 1):
+        file_time = date + timedelta(minutes=i * timestep)
         timestamps.append(file_time)
 
         # Generate the filename using extract_filename_from_datetime
