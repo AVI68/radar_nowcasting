@@ -18,7 +18,7 @@ import skimage.transform as sktf
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
 
-from rainymotion.utils import RYScaler, inv_RYScaler
+from utils import RYScaler, inv_RYScaler
 
 # -- SPARSE GROUP -- #
 # ----- helpers ----- #

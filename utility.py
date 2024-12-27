@@ -20,7 +20,6 @@ import contextily as cx
 from scipy.ndimage import median_filter
 from scipy.signal import correlate2d
 import cv2
-import pywt
 
 
 # Provided utility functions
