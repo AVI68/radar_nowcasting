@@ -117,11 +117,11 @@ def get_matadata(file_path, type='X'):
                     "ypixelsize": abs(gt[5]),
                     "yorigin": "upper" if gt[5] < 0 else "lower",
                     "institution": "UNICA",
-                    "unit": "dBZ",
-                    "transform": "dB",
+                    "unit": "DN",
+                    "transform": "None",
                     "accutime": 1,
-                    "zr_a": 200,
-                    "zr_b": 1.6,
+                    "zr_a": 53.89,
+                    "zr_b": 0.86,
                     "product":"png",
                     "zerovalue" : 0,
                     "threshold" :0,
@@ -326,7 +326,6 @@ def import_files_by_date(date, root_path, data_source, event_subdir, f_ext, meta
     # Update metadata with timestamps
     metadata['timestamps'] = np.array(timestamps, dtype=object)
     metadata['accutime'] = timestep
-
     return radar_data, metadata
 
 def read_image(file_path):
@@ -373,7 +372,7 @@ def read_image(file_path):
 
     else:
         raise ValueError("Unsupported file format. Supported formats are 'png' and 'tiff'.")
-def dn_to_dbz(image_data):
+def dn_to_dbz(image_data,metadata):
     """
     Convert pixel values from digital number (DN) to reflectivity in dBZ.
     
@@ -384,7 +383,9 @@ def dn_to_dbz(image_data):
         numpy.ndarray: Array containing the reflectivity values in dBZ.
     """
     reflectivity_dbz = (image_data / 2.55) - 100 + 91.4
-    return reflectivity_dbz
+    metadata["unit"]='dBZ'
+    metadata["transform"]='dB'
+    return reflectivity_dbz, metadata
 
 
 # for plotting rainfal intensity map and save in an output directory
@@ -414,20 +415,24 @@ def precip_intensity_plots(R,metadata, title, ax, out_dir, dt):
     plot_modification(ax, metadata)
     plt.savefig(os.path.join(out_dir, f"{title}_{dt.strftime('%Y%m%d_%H%M')}.png")) 
     
-def plot_modification(ax, metadata, crs_geo="EPSG:4326", tick_step=5):
+def plot_modification(ax, metadata, crs_geo="EPSG:4326", tick_step=5, circle_radius=60 * 512):
     """
-    Modify an existing plot's axis with geographic labels, basemap, and tick formatting.
+    Modify an existing plot's axis with geographic labels, basemap, tick formatting, 
+    and overlay a circle for the radar area of influence, with transparent grey outside the circle.
 
     Parameters:
         ax (matplotlib.axes.Axes): The axis object to modify.
         metadata (dict): Metadata containing projection information.
         crs_geo (str): Geographic CRS for converting coordinates (default is 'EPSG:4326').
         tick_step (int): Step size for major ticks on both axes.
+        circle_radius (float): Radius of the radar influence area (default is 60 * 512 meters).
     """
-    
     import pyproj
     from matplotlib.ticker import FuncFormatter, MaxNLocator
     import contextily as cx
+    from matplotlib.patches import Circle, PathPatch
+    from matplotlib.path import Path
+
     # Extract CRS projection from metadata
     crs_proj = metadata["projection"]
 
@@ -440,12 +445,12 @@ def plot_modification(ax, metadata, crs_geo="EPSG:4326", tick_step=5):
     def format_ticks(value, tick_number, axis):
         """
         Format tick values to display degrees with compass directions (E, W, N, S).
-        
+
         Parameters:
             value (float): The coordinate value (in meters).
             tick_number (int): Tick index (not used, required by FuncFormatter).
             axis (str): The axis being formatted ('x' for longitude, 'y' for latitude).
-        
+
         Returns:
             str: Formatted tick label with degrees and compass directions.
         """
@@ -462,7 +467,6 @@ def plot_modification(ax, metadata, crs_geo="EPSG:4326", tick_step=5):
             lat = abs(lat)  # Take absolute value for formatting
         return f"{lat:.2f}° {direction}"
 
-
     # Format x and y axis labels to degrees
     ax.xaxis.set_major_formatter(FuncFormatter(lambda x, _: format_ticks(x, 0, "x")))
     ax.yaxis.set_major_formatter(FuncFormatter(lambda y, _: format_ticks(y, 0, "y")))
@@ -470,12 +474,41 @@ def plot_modification(ax, metadata, crs_geo="EPSG:4326", tick_step=5):
     # Reduce the number of ticks
     ax.xaxis.set_major_locator(MaxNLocator(nbins=tick_step))
     ax.yaxis.set_major_locator(MaxNLocator(nbins=tick_step))
+    
     # Rotate the Y-axis tick labels by 90 degrees
-    ax.tick_params(axis='y',labelrotation=90)
+    ax.tick_params(axis='y', labelrotation=90)
 
     # Add a basemap
     cx.add_basemap(ax, crs=crs_proj, source=cx.providers.OpenStreetMap.Mapnik)
-    
+
+    # Overlay the circle
+    center_x = (metadata['x1'] + metadata['x2']) / 2  # Center in x
+    center_y = (metadata['y1'] + metadata['y2']) / 2  # Center in y
+
+    # Add the black-bordered circle
+    circle = Circle((center_x, center_y), circle_radius, edgecolor='black', facecolor='none', linewidth=1)
+    ax.add_patch(circle)
+
+    # Create a patch for the transparent grey fill outside the circle
+    # Define the rectangular plot area
+    path_outer = Path([
+        (metadata['x1'], metadata['y1']),
+        (metadata['x1'], metadata['y2']),
+        (metadata['x2'], metadata['y2']),
+        (metadata['x2'], metadata['y1']),
+        (metadata['x1'], metadata['y1'])
+    ])
+
+    # Define the circular hole
+    path_inner = Path.circle(center=(center_x, center_y), radius=circle_radius)
+
+    # Combine the paths to create an outer rectangle with a circular hole
+    path_combined = Path.make_compound_path(path_outer, path_inner)
+    patch = PathPatch(path_combined, facecolor="grey", alpha=0.3, edgecolor="none")
+    ax.add_patch(patch)
+
+
+
 
 def noise_remove(image, type='Watershed'):
     if type == 'Median':
@@ -560,7 +593,7 @@ def noise_remove(image, type='Watershed'):
         raise ValueError(f"Unknown noise removal type: {type}")
     
     return filtered_image
-def create_gif(R, metadata, units="dBZ", title="Precipitation Field GIF", loop=True):
+def create_gif(R, metadata, units="dBZ", title="Precipitation Field GIF", duration=0.5, loop=True):
     """
     Create and display a GIF from radar data along the time axis.
 
@@ -569,6 +602,7 @@ def create_gif(R, metadata, units="dBZ", title="Precipitation Field GIF", loop=T
         metadata (dict): Metadata containing geospatial information.
         units (str): Units for the plot (e.g., 'dBZ').
         title (str): Title for the GIF frames.
+        duration (float): Duration of each frame in seconds.
         loop (bool): If True, the GIF will loop indefinitely.
 
     Returns:
@@ -595,7 +629,7 @@ def create_gif(R, metadata, units="dBZ", title="Precipitation Field GIF", loop=T
                 ptype="intensity", 
                 geodata=metadata, 
                 units=units, 
-                title=f"{title} - Time Step {t+1}", 
+                title=f"{title} - {metadata['timestamps'][t].strftime('%d/%m/%Y %H:%M')}", 
                 ax=ax, 
                 colorscale="pysteps"
             )
@@ -612,9 +646,9 @@ def create_gif(R, metadata, units="dBZ", title="Precipitation Field GIF", loop=T
         # Save GIF in the current working directory
         gif_path = os.path.join(os.getcwd(), "precipitation_field.gif")
         loop_count = 0 if loop else 1  # 0 means infinite loop
-        with imageio.get_writer(gif_path, mode="I", duration=2, loop=loop_count) as writer:
+        with imageio.get_writer(gif_path, mode="I", duration=duration, loop=loop_count) as writer:
             for frame_file in frame_files:
-                image = imageio.imread(frame_file)
+                image = imageio.v3.imread(frame_file)
                 writer.append_data(image)
 
         # Display GIF in notebook
