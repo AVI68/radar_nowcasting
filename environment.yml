@@ -18,6 +18,7 @@ dependencies:
   - dask
   - wradlib
   - contextily
+  - pywavelets
   - pip
   - pip:  # Pip dependencies
     - scikit-learn
