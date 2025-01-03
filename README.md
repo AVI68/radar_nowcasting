@@ -93,6 +93,7 @@ jupyter notebook
 The repository includes a Data directory containing sample datasets required to run the Jupyter Notebook. Make sure the Data directory is in the root of the repository after cloning. The notebook is configured to automatically load data from this directory.
 ### Data Structure
 The Data directory is structured as follows:
+```bash
 Data/
 ├── radarmappatipo.tif
 └── UNICA_SG/
@@ -103,6 +104,7 @@ Data/
     ├── another_date_time_folder/
     │   ├── another_image.png
     └── ...
+```
 ### Data Description
 1. radarmappatipo.tif: Radar base map file used for visualization and analysis.
 2. UNICA_SG: Directory containing radar images organized in subdirectories by timestamp in the format yyyymmdd_HHMM (e.g., 20240101_1200).
