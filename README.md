@@ -52,6 +52,7 @@ To clone this repository to your local directory, open a terminal and run the fo
 git clone https://github.com/AVI68/radar_nowcasting.git
 ```
 
+
 ### Step2: Navigate to the Repository
 Change the directory to the cloned repository:
 ```bash
