@@ -50,12 +50,13 @@ Before you begin, ensure you have the following installed on your system:
 To clone this repository to your local directory, open a terminal and run the following command:
 ```bash
 git clone https://github.com/AVI68/radar_nowcasting.git
-
+```
 
 ### Step2: Navigate to the Repository
 Change the directory to the cloned repository:
 ```bash
 cd radar_nowcasting
+```
 
 ## Setting Up the Environment
 
@@ -63,18 +64,21 @@ cd radar_nowcasting
 The environment.yml file is provided in the repository to create a Conda environment with all the necessary dependencies. Run the following command to create the environment:
 ```bash
 conda env create -f environment.yml
+```
 
 ### Step 2: Activate the Environment
 Activate the newly created environment:
 
 ```bash
 conda activate radar_nowcasting_env
+```
 
 ### Step 3: Adjust Cartopy for Basemap Reproduction
 By default, Cartopy may have resolution limitations incompatible with this dataset. We use Contextily to overlay basemaps. To avoid conflicts:
 
 ```bash
 conda deactivate cartopy
+```
 
 ## Usage
 
@@ -82,6 +86,7 @@ conda deactivate cartopy
 Run the provided Jupyter Notebook to reproduce the results:
 ```bash
 jupyter notebook
+```
 
 ## Sample Data
 The repository includes a Data directory containing sample datasets required to run the Jupyter Notebook. Make sure the Data directory is in the root of the repository after cloning. The notebook is configured to automatically load data from this directory.
@@ -113,7 +118,3 @@ Contributions are welcome! Feel free to fork this repository, make your changes,
 ## Reference publications
 
 Pulkkinen, S., D. Nerini, A. Perez Hortal, C. Velasco-Forero, U. Germann, A. Seed, and L. Foresti, 2019: Pysteps: an open-source Python library for probabilistic precipitation nowcasting (v1.0). Geosci. Model Dev., 12 (10), 4185–4219, doi:10.5194/gmd-12-4185-2019.
-
-
-
-
