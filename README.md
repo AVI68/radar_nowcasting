@@ -50,39 +50,41 @@ Before you begin, ensure you have the following installed on your system:
 To clone this repository to your local directory, open a terminal and run the following command:
 ```bash
 git clone https://github.com/AVI68/radar_nowcasting.git
+```
 
 
 ### Step2: Navigate to the Repository
 Change the directory to the cloned repository:
 ```bash
 cd radar_nowcasting
-
+```
 ## Setting Up the Environment
 
 ### Step 1: Create the Conda Environment
 The environment.yml file is provided in the repository to create a Conda environment with all the necessary dependencies. Run the following command to create the environment:
 ```bash
 conda env create -f environment.yml
-
+```
 ### Step 2: Activate the Environment
 Activate the newly created environment:
 
 ```bash
 conda activate radar_nowcasting_env
+```
 
 ### Step 3: Adjust Cartopy for Basemap Reproduction
 By default, Cartopy may have resolution limitations incompatible with this dataset. We use Contextily to overlay basemaps. To avoid conflicts:
 
 ```bash
 conda deactivate cartopy
-
+```
 ## Usage
 
 ### Step 4: Run the Jupyter Notebook
 Run the provided Jupyter Notebook to reproduce the results:
 ```bash
 jupyter notebook
-
+```
 ## Sample Data
 The repository includes a Data directory containing sample datasets required to run the Jupyter Notebook. Make sure the Data directory is in the root of the repository after cloning. The notebook is configured to automatically load data from this directory.
 ### Data Structure
