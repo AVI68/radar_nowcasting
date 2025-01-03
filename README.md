@@ -118,4 +118,4 @@ Contributions are welcome! Feel free to fork this repository, make your changes,
 
 ## Reference publications
 
-Pulkkinen, S., D. Nerini, A. Perez Hortal, C. Velasco-Forero, U. Germann, A. Seed, and L. Foresti, 2019: Pysteps: an open-source Python library for probabilistic precipitation nowcasting (v1.0). Geosci. Model Dev., 12 (10), 4185–4219, doi:10.5194/gmd-12-4185-2019.
+Pulkkinen, S., D. Nerini, A. Perez Hortal, C. Velasco-Forero, U. Germann, A. Seed, and L. Foresti, 2019: Pysteps: an open-source Python library for probabilistic precipitation nowcasting (v1.0). Geosci. Model Dev., 12 (10), 4185–4219, doi:10.5194/gmd-12-4185-2019, https://gmd.copernicus.org/articles/12/4185/2019/
