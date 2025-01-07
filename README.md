@@ -118,7 +118,7 @@ Ensure that the data remains in the Data directory to avoid path issues when run
 ## Contributing
 Craeted by Avijit Majhi, PhD. Scholar University of Cagliari, Department of Civil, Environmental and Architectural Engineering.
 Contributions are welcome! Feel free to fork this repository, make your changes, and submit a pull request.
-## funding
+## Funding
 Funded by the GeoSciences IR, WP4, UNICA 03 - Risk monitoring and management project under NRRP, European Union – NextGenerationEU 
 
 ## Reference publications
