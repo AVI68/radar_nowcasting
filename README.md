@@ -31,7 +31,8 @@ This repository contains code and resources for radar-based precipitation nowcas
 4. [Usage](#usage)
 5. [Sample Data](#sample-data)
 6. [Contributing](#contributing)
-7. [References](#references)
+7. [Funding](#funding)
+8. [References](#references)
 
 ---
 
@@ -117,6 +118,8 @@ Ensure that the data remains in the Data directory to avoid path issues when run
 ## Contributing
 Craeted by Avijit Majhi, PhD. Scholar University of Cagliari, Department of Civil, Environmental and Architectural Engineering.
 Contributions are welcome! Feel free to fork this repository, make your changes, and submit a pull request.
+## funding
+Funded by the GeoSciences IR, WP4, UNICA 03 - Risk monitoring and management project under NRRP, European Union – NextGenerationEU 
 
 ## Reference publications
 
