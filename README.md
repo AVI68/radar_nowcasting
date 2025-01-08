@@ -113,8 +113,8 @@ Data/
 Ensure that the data remains in the specified structure to avoid path issues when running the notebook.
 
 Ensure that the data remains in the Data directory to avoid path issues when running the notebook.
-
-
+### Note on Data Source
+The data is collected from Meteo Radar, UnicaWATER (https://meteoradar.unica.it/). You can also view real-time radar scans updated every minute.
 ## Contributing
 
 Created by Meteo Radar, UnicaWATER, Hydraulic Division, Department of Civil, Environmental and Architectural Engineering, University of Cagliari.
@@ -129,10 +129,13 @@ Created by Meteo Radar, UnicaWATER, Hydraulic Division, Department of Civil, Env
 Contributions are welcome! Feel free to fork this repository, make your changes, and submit a pull request.
 
 ## Funding
+
 Developed under the GeoSciences IR, WP4, UNICA 03 - Risk monitoring and management project funded by NRRP, European Union – NextGenerationEU.
-Title of the Project: Precipitation ensemble nowcasting procedures 
-Ministerial Code: IR0000037		CUP: I53C22000800006
-Principal Investigator: Prof. Roberto Deidda
+
+- **Title of the Project: Precipitation ensemble nowcasting procedures** 
+- **Ministerial Code: IR0000037**
+- **CUP: I53C22000800006**
+- **Principal Investigator: Prof. Roberto Deidda**
 
 
 
