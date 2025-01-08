@@ -1,5 +1,6 @@
 # radar_nowcasting
-
+![Alt Text](gif/precipitation_field.gif)
+![Radar Animation](gif/precipitation_field.gif)
 This repository focuses on analyzing X-Band weather radar data for nowcasting using **Pysteps** (Python framework for short-term ensemble prediction systems). The methods utilized include:
 
 - **Motion Estimation Techniques**:
