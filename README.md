@@ -116,13 +116,15 @@ Ensure that the data remains in the Data directory to avoid path issues when run
 
 
 ## Contributing
-Craeted by Meteo Radar, UnicaWATER, Hydraulic Division, Department of Civil, Environmental and Architectural Engineering, University of Cagliari.
-Working Team :
-Avijit Majhi (majhiavijit1996@gmail.com)
-Alessandro Seoni (aseoni@unica.it)
-Francesco Viola (hydroviolante@gmail.com)
-Maria Grazia Badas (mgbadas@unica.it)
-Roberto Deidda (rdeidda@unica.it)
+
+Created by Meteo Radar, UnicaWATER, Hydraulic Division, Department of Civil, Environmental and Architectural Engineering, University of Cagliari.
+
+### Working Team:
+- **Avijit Majhi** (majhiavijit1996@gmail.com)
+- **Alessandro Seoni** (aseoni@unica.it)
+- **Francesco Viola** (hydroviolante@gmail.com)
+- **Maria Grazia Badas** (mgbadas@unica.it)
+- **Roberto Deidda** (rdeidda@unica.it)
 
 Contributions are welcome! Feel free to fork this repository, make your changes, and submit a pull request.
 
