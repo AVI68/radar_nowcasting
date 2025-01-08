@@ -1,5 +1,6 @@
 # radar_nowcasting
-
+![Alt Text](gif/precipitation_field.gif)
+![Radar Animation](gif/precipitation_field.gif)
 This repository focuses on analyzing X-Band weather radar data for nowcasting using **Pysteps** (Python framework for short-term ensemble prediction systems). The methods utilized include:
 
 - **Motion Estimation Techniques**:
@@ -31,7 +32,8 @@ This repository contains code and resources for radar-based precipitation nowcas
 4. [Usage](#usage)
 5. [Sample Data](#sample-data)
 6. [Contributing](#contributing)
-7. [References](#references)
+7. [Funding](#funding)
+8. [References](#references)
 
 ---
 
@@ -93,6 +95,7 @@ jupyter notebook
 The repository includes a Data directory containing sample datasets required to run the Jupyter Notebook. Make sure the Data directory is in the root of the repository after cloning. The notebook is configured to automatically load data from this directory.
 ### Data Structure
 The Data directory is structured as follows:
+```bash
 Data/
 ├── radarmappatipo.tif
 └── UNICA_SG/
@@ -103,6 +106,7 @@ Data/
     ├── another_date_time_folder/
     │   ├── another_image.png
     └── ...
+```
 ### Data Description
 1. radarmappatipo.tif: Radar base map file used for visualization and analysis.
 2. UNICA_SG: Directory containing radar images organized in subdirectories by timestamp in the format yyyymmdd_HHMM (e.g., 20240101_1200).
@@ -110,12 +114,32 @@ Data/
 Ensure that the data remains in the specified structure to avoid path issues when running the notebook.
 
 Ensure that the data remains in the Data directory to avoid path issues when running the notebook.
-
-
+### Note on Data Source
+The data is collected from Meteo Radar, UnicaWATER (https://meteoradar.unica.it/). You can also view real-time radar scans updated every minute.
 ## Contributing
-Craeted by Avijit Majhi, PhD. Scholar University of Cagliari, Department of Civil, Environmental and Architectural Engineering.
+
+Created by Meteo Radar, UnicaWATER, Hydraulic Division, Department of Civil, Environmental and Architectural Engineering, University of Cagliari.
+
+### Working Team:
+- **Avijit Majhi** (majhiavijit1996@gmail.com)
+- **Alessandro Seoni** (aseoni@unica.it)
+- **Francesco Viola** (hydroviolante@gmail.com)
+- **Maria Grazia Badas** (mgbadas@unica.it)
+- **Roberto Deidda** (rdeidda@unica.it)
+
 Contributions are welcome! Feel free to fork this repository, make your changes, and submit a pull request.
 
-## Reference publications
+## Funding
 
-Pulkkinen, S., D. Nerini, A. Perez Hortal, C. Velasco-Forero, U. Germann, A. Seed, and L. Foresti, 2019: Pysteps: an open-source Python library for probabilistic precipitation nowcasting (v1.0). Geosci. Model Dev., 12 (10), 4185–4219, doi:10.5194/gmd-12-4185-2019.
+Developed under the GeoSciences IR, WP4, UNICA 03 - Risk monitoring and management project funded by NRRP, European Union – NextGenerationEU.
+
+- **Title of the Project: Precipitation ensemble nowcasting procedures** 
+- **Ministerial Code: IR0000037**
+- **CUP: I53C22000800006**
+- **Principal Investigator: Prof. Roberto Deidda**
+
+
+
+
+## Reference publications
+Pulkkinen, S., D. Nerini, A. Perez Hortal, C. Velasco-Forero, U. Germann, A. Seed, and L. Foresti, 2019: Pysteps: an open-source Python library for probabilistic precipitation nowcasting (v1.0). Geosci. Model Dev., 12 (10), 4185–4219, doi:10.5194/gmd-12-4185-2019, https://gmd.copernicus.org/articles/12/4185/2019/
