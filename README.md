@@ -1,6 +1,6 @@
 # radar_nowcasting
 ![Radar Animation](gif/precipitation_field.gif)
-This repository focuses on analyzing X-Band weather radar data for nowcasting using **Pysteps** (Python framework for short-term ensemble prediction systems). The methods utilized include:
+This repository focuses on analyzing X-Band weather radar data for nowcasting using **Pysteps** (Python framework for short-term ensemble prediction systems). This radar is installed at University of Cagliari which scans 30 km radius of Cagliari metropolitan. The methods utilized include: 
 
 - **Motion Estimation Techniques**:
   - Lucas-Kanade (LK)
