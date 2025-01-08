@@ -116,11 +116,19 @@ Ensure that the data remains in the Data directory to avoid path issues when run
 
 
 ## Contributing
-Craeted by Avijit Majhi, PhD. Scholar University of Cagliari, Department of Civil, Environmental and Architectural Engineering.
+Craeted by Meteo Radar, UnicaWATER, Hydraulic Division, Department of Civil, Environmental and Architectural Engineering, University of Cagliari.
+Working Team - Avijit Majhi(majhiavijit1996@gmail.com), Alessandro Seoni(aseoni@unica.it), Francesco Viola(hydroviolante@gmail.com), Maria Grazia Badas(mgbadas@unica.it) and Roberto Deidda(rdeidda@unica.it)
+
 Contributions are welcome! Feel free to fork this repository, make your changes, and submit a pull request.
+
 ## Funding
-Funded by the GeoSciences IR, WP4, UNICA 03 - Risk monitoring and management project under NRRP, European Union – NextGenerationEU 
+Developed under the GeoSciences IR, WP4, UNICA 03 - Risk monitoring and management project funded by NRRP, European Union – NextGenerationEU.
+Title of the Project: Precipitation ensemble nowcasting procedures 
+Ministerial Code: IR0000037		CUP: I53C22000800006
+Principal Investigator: Prof. Roberto Deidda
+
+
+
 
 ## Reference publications
-
 Pulkkinen, S., D. Nerini, A. Perez Hortal, C. Velasco-Forero, U. Germann, A. Seed, and L. Foresti, 2019: Pysteps: an open-source Python library for probabilistic precipitation nowcasting (v1.0). Geosci. Model Dev., 12 (10), 4185–4219, doi:10.5194/gmd-12-4185-2019, https://gmd.copernicus.org/articles/12/4185/2019/
