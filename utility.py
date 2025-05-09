@@ -399,129 +399,22 @@ def dn_to_dbz(image_data,metadata):
     metadata["transform"]='dB'
     return reflectivity_dbz, metadata
 
-
-# for plotting rainfal intensity map and save in an output directory
-def precip_intensity_plots(R,metadata, title, ax, out_dir, dt):
-    
+def dbz_to_dn(reflectivity_dbz, metadata):
     """
-    Plot precipitation intensity map by adding basemap.
-    
-    Parameters:
-        R (array): rainfall intensity in dBZ
-        metadata (dict) : metadata of the R file
-        title (str) : Title for the plot
-        ax : for providing the axis (useful for subplot)
-        dt : timestamps
-    """
-    
-    
-    R[R == -9998] =np.nan
-    R[R == -9999] =np.nan
-    R[R <-10] = np.nan 
-    
-    # Concatenate title with datetime
-    full_title = f"{title} of {dt.strftime('%Y-%m-%d %H:%M:')}"
-     
-    ax = plot_precip_field(R, ptype="intensity", geodata=metadata,units="dBZ", 
-                           title=full_title, ax=ax,colorscale='pysteps')
-    plot_modification(ax, metadata)
-    plt.savefig(os.path.join(out_dir, f"{title}_{dt.strftime('%Y%m%d_%H%M')}.png")) 
-    
-def plot_modification(ax, metadata, crs_geo="EPSG:4326", tick_step=5, circle_radius=60 * 512):
-    """
-    Modify an existing plot's axis with geographic labels, basemap, tick formatting, 
-    and overlay a circle for the radar area of influence, with transparent grey outside the circle.
+    Convert reflectivity values in dBZ back to digital number (DN).
 
     Parameters:
-        ax (matplotlib.axes.Axes): The axis object to modify.
-        metadata (dict): Metadata containing projection information.
-        crs_geo (str): Geographic CRS for converting coordinates (default is 'EPSG:4326').
-        tick_step (int): Step size for major ticks on both axes.
-        circle_radius (float): Radius of the radar influence area (default is 60 * 512 meters).
+        reflectivity_dbz (numpy.ndarray): Array containing the reflectivity values in dBZ.
+
+    Returns:
+        numpy.ndarray: Array containing pixel values as digital numbers.
     """
-    import pyproj
-    from matplotlib.ticker import FuncFormatter, MaxNLocator
-    import contextily as cx
-    from matplotlib.patches import Circle, PathPatch
-    from matplotlib.path import Path
+    dn = (reflectivity_dbz - 91.4 + 100) * 2.55
+    metadata["unit"] = "DN"
+    metadata["transform"] = "linear"
+    return dn.astype("uint8"), metadata
 
-    # Extract CRS projection from metadata
-    crs_proj = metadata["projection"]
-
-    # Function to convert meter-based coordinates to degrees
-    def convert_meters_to_degrees(x, y, crs_proj, crs_geo="EPSG:4326"):
-        transformer = pyproj.Transformer.from_crs(crs_proj, crs_geo, always_xy=True)
-        return transformer.transform(x, y)
-
-    # Formatter for ticks
-    def format_ticks(value, tick_number, axis):
-        """
-        Format tick values to display degrees with compass directions (E, W, N, S).
-
-        Parameters:
-            value (float): The coordinate value (in meters).
-            tick_number (int): Tick index (not used, required by FuncFormatter).
-            axis (str): The axis being formatted ('x' for longitude, 'y' for latitude).
-
-        Returns:
-            str: Formatted tick label with degrees and compass directions.
-        """
-        # Convert meters to degrees
-        lon, lat = convert_meters_to_degrees(value, 0, crs_proj) if axis == "x" else convert_meters_to_degrees(0, value, crs_proj)
-        
-        # Determine compass direction
-        if axis == "x":  # Longitude
-            direction = "E" if lon >= 0 else "W"
-            lon = abs(lon)  # Take absolute value for formatting
-            return f"{lon:.2f}° {direction}"
-        else:  # Latitude
-            direction = "N" if lat >= 0 else "S"
-            lat = abs(lat)  # Take absolute value for formatting
-        return f"{lat:.2f}° {direction}"
-
-    # Format x and y axis labels to degrees
-    ax.xaxis.set_major_formatter(FuncFormatter(lambda x, _: format_ticks(x, 0, "x")))
-    ax.yaxis.set_major_formatter(FuncFormatter(lambda y, _: format_ticks(y, 0, "y")))
-
-    # Reduce the number of ticks
-    ax.xaxis.set_major_locator(MaxNLocator(nbins=tick_step))
-    ax.yaxis.set_major_locator(MaxNLocator(nbins=tick_step))
-    
-    # Rotate the Y-axis tick labels by 90 degrees
-    ax.tick_params(axis='y', labelrotation=90)
-
-    # Add a basemap
-    cx.add_basemap(ax, crs=crs_proj, source=cx.providers.OpenStreetMap.Mapnik)
-
-    # Overlay the circle
-    center_x = (metadata['x1'] + metadata['x2']) / 2  # Center in x
-    center_y = (metadata['y1'] + metadata['y2']) / 2  # Center in y
-
-    # Add the black-bordered circle
-    circle = Circle((center_x, center_y), circle_radius, edgecolor='black', facecolor='none', linewidth=1)
-    ax.add_patch(circle)
-
-    # Create a patch for the transparent grey fill outside the circle
-    # Define the rectangular plot area
-    path_outer = Path([
-        (metadata['x1'], metadata['y1']),
-        (metadata['x1'], metadata['y2']),
-        (metadata['x2'], metadata['y2']),
-        (metadata['x2'], metadata['y1']),
-        (metadata['x1'], metadata['y1'])
-    ])
-
-    # Define the circular hole
-    path_inner = Path.circle(center=(center_x, center_y), radius=circle_radius)
-
-    # Combine the paths to create an outer rectangle with a circular hole
-    path_combined = Path.make_compound_path(path_outer, path_inner)
-    patch = PathPatch(path_combined, facecolor="grey", alpha=0.3, edgecolor="none")
-    ax.add_patch(patch)
-
-
-
-
+ 
 def noise_remove(image, type='Watershed'):
     if type == 'Median':
         # Median filter specific parameters
@@ -605,6 +498,67 @@ def noise_remove(image, type='Watershed'):
         raise ValueError(f"Unknown noise removal type: {type}")
     
     return filtered_image
+
+def clip_domain_epsg4326(data, metadata, extent):
+    """
+    Clip a 2D or 3D EPSG:4326 array using the given geographic extent.
+
+    Parameters:
+        data: np.ndarray
+            Shape can be either (T, H, W) or (H, W)
+        metadata: dict
+            Pysteps-style metadata
+        extent: tuple
+            (lon_min, lon_max, lat_min, lat_max)
+
+    Returns:
+        clipped_data: np.ndarray
+        clipped_metadata: dict
+    """
+    lon_min, lon_max, lat_min, lat_max = extent
+
+    # Determine dimensionality
+    if data.ndim == 3:
+        has_time = True
+        _, ny, nx = data.shape
+    elif data.ndim == 2:
+        has_time = False
+        ny, nx = data.shape
+    else:
+        raise ValueError("Input data must be 2D or 3D with time as the first dimension.")
+
+    # Generate coordinate arrays
+    lons = np.linspace(metadata["x1"], metadata["x2"], nx)
+    lats = np.linspace(metadata["y1"], metadata["y2"], ny)
+
+    # Because yorigin='upper', latitude array goes top -> bottom
+    if metadata["yorigin"] == "upper":
+        lat_mask = (lats >= lat_min) & (lats <= lat_max)
+    else:
+        lat_mask = (lats <= lat_max) & (lats >= lat_min)
+
+    lon_mask = (lons >= lon_min) & (lons <= lon_max)
+
+    lat_indices = np.where(lat_mask)[0]
+    lon_indices = np.where(lon_mask)[0]
+
+    if lat_indices.size == 0 or lon_indices.size == 0:
+        raise ValueError("No overlap between data and clipping extent.")
+
+    # Perform clipping
+    if has_time:
+        clipped = data[:, lat_indices[0]:lat_indices[-1]+1, lon_indices[0]:lon_indices[-1]+1]
+    else:
+        clipped = data[lat_indices[0]:lat_indices[-1]+1, lon_indices[0]:lon_indices[-1]+1]
+
+    # Update metadata
+    new_metadata = metadata.copy()
+    new_metadata["x1"] = float(lons[lon_indices[0]])
+    new_metadata["x2"] = float(lons[lon_indices[-1]])
+    new_metadata["y1"] = float(lats[lat_indices[0]])
+    new_metadata["y2"] = float(lats[lat_indices[-1]])
+
+    return clipped, new_metadata
 def create_gif(R, metadata, units="dBZ", title="Precipitation Field GIF", duration=0.5, loop=True):
     """
     Create and display a GIF from radar data along the time axis.
@@ -629,11 +583,12 @@ def create_gif(R, metadata, units="dBZ", title="Precipitation Field GIF", durati
     temp_dir = "temp_frames"
     os.makedirs(temp_dir, exist_ok=True)
     frame_files = []
+    map_kwargs = {"drawlonlatlines": True}
 
     try:
         # Generate frames for each time step
         for t in range(R.shape[0]):
-            fig, ax = plt.subplots(figsize=(10, 8))
+            fig, ax = plt.subplots(figsize=(10, 8),layout="constrained"); ax.axis("off")
 
             # Plot precipitation field
             plot_precip_field(
@@ -643,12 +598,9 @@ def create_gif(R, metadata, units="dBZ", title="Precipitation Field GIF", durati
                 units=units, 
                 title=f"{title} - {metadata['timestamps'][t].strftime('%d/%m/%Y %H:%M')}", 
                 ax=ax, 
+                map_kwargs=map_kwargs,
                 colorscale="pysteps"
             )
-
-            # Add basemap and customizations
-            plot_modification(ax, metadata)
-
             # Save frame
             frame_file = os.path.join(temp_dir, f"frame_{t}.png")
             plt.savefig(frame_file)
