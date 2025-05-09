@@ -6,7 +6,7 @@
 
 This repository provides tools and reproducible workflows for precipitation nowcasting using weather radar data collected from multiple sources. The focus is on processing and forecasting with **Single-Polarization X-Band**, **Dual-Polarization X-Band**, and **C-Band** radar data, utilizing the open-source Python framework **[Pysteps](https://pysteps.github.io/)** (Probabilistic Short-Term Ensemble Prediction System).
 
-Data originates from a network of radars deployed by the **University of Cagliari**, covering:
+Data originates from a network of radars managed by **University of Cagliari**, covering:
 - **30 km** radius of the Cagliari metropolitan area (X-Band, Single Pol.) with a spatial resolution of 60 meters.
 - **120 km** radius across Southern Sardinia (X-Band, Dual Pol.) with a spatial resolution of 250 meters.
 - **National Italian Radar Network** (C-Band) provided by the Italian Civil Protection agency, cropped to Southern Sardinia with a spatial resolution of 1 km.
